@@ -1,7 +1,7 @@
 import { Navbar } from "../components/Navbar";
 import { Sidebar } from "../components/Sidebar";
 
-const widthSpace = 280;
+const widthSpace = 300;
 
 export function JournalLayout({ children }) {
   return (

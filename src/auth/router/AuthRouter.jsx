@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router";
 import { LoginPage, RegisterPage } from "../pages";
 
 export function AuthRouter() {
+
   return (
     <Routes>
 

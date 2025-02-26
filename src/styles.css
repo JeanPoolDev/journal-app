@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+.nombre {
+  background: linear-gradient(to left, green, blue);
+  background-clip: text;
+  color: transparent;
+}
