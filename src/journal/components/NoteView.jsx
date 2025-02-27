@@ -1,16 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Guardar } from "../../icons/iconos";
+import { Guardar, Images } from "../../icons/iconos";
 import { Gallery } from "./Gallery";
 import { useForm } from "../../hooks/useForm";
-import { startUpdateNote } from "../../store/journal/thunks";
-import { useEffect } from "react";
+import { startDeleveNote, startUpdateNote, startUploadImages } from "../../store/journal/thunks";
+import { useEffect, useRef } from "react";
 import { setActiveNote } from "../../store/journal/SliceJournal";
 
 
 export function NoteView() {
 
+  const inputFilesRef = useRef();
   const dispatch = useDispatch();
-  const { active: note } = useSelector((state => state.journal))
+  const { active: note, isSaving } = useSelector((state => state.journal))
   const { date, title, body, onInputChange, formState } = useForm(note);
 
   useEffect(() => {
@@ -34,6 +35,15 @@ export function NoteView() {
     dispatch(startUpdateNote())
   }
 
+  const onSaveImges = ({ target }) => {
+    if (target.files === 0) return;
+    dispatch(startUploadImages(target.files))
+  }
+
+  const onDeleteNote = () => {
+    dispatch(startDeleveNote(note.id))
+  }
+
   return (
     <section className="w-full space-y-4">
       <div className="flex justify-between items-center">
@@ -42,15 +52,37 @@ export function NoteView() {
           {newFecha()}
         </p>
 
-        <button
-          onClick={onSave}
-          className="flex gap-4 items-center hover:bg-gray-200 p-3 cursor-pointer"
-        >
-          <p className="font-semibold text-lg">
-            Guardar
-          </p>
-          <Guardar />
-        </button>
+        <div className="flex gap-4">
+
+          <input
+            ref={inputFilesRef}
+            className="hidden"
+            type="file"
+            multiple
+            onChange={onSaveImges}
+          />
+
+          <button
+            onClick={() => inputFilesRef.current.click()}
+            disabled={isSaving}
+            className="flex gap-2 items-center hover:bg-gray-200 p-3 cursor-pointer"
+          >
+            <p className="font-semibold text-lg">
+              Subir Imagenes
+            </p>
+            <Images />
+          </button>
+
+          <button
+            onClick={onSave}
+            className="flex gap-2 items-center hover:bg-gray-200 p-3 cursor-pointer"
+          >
+            <p className="font-semibold text-lg">
+              Guardar
+            </p>
+            <Guardar />
+          </button>
+        </div>
 
       </div>
 
@@ -81,8 +113,16 @@ export function NoteView() {
         />
       </form>
 
+      <button
+        onClick={onDeleteNote}
+        className="flex gap-2 items-center border 
+        hover:bg-gray-200 p-3 cursor-pointer"
+      >
+        Eliminar
+      </button>
+
       {/* Galería de imagenes */}
-      <Gallery />
+      <Gallery images={note.imageUrls} />
 
 
     </section>

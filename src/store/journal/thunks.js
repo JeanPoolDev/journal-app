@@ -1,7 +1,8 @@
-import { collection, doc, setDoc } from "firebase/firestore/lite";
-import { addNewEmptyNote, savingNewNote, setActiveNote, setNotes, setSaving, updateNote } from "./SliceJournal"
+import { collection, deleteDoc, doc, setDoc } from "firebase/firestore/lite";
+import { addNewEmptyNote, deleteNoteById, savingNewNote, setActiveNote, setNotes, setPhotosToActiveNote, setSaving, updateNote } from "./SliceJournal"
 import { FirebaseDB } from "../../firebase/config";
 import { loadNotes } from "../../helpers/loadNotes";
+import { cloudinary } from "../../helpers/cloudinary";
 
 
 export const startNewNote = () => {
@@ -55,6 +56,37 @@ export const startUpdateNote = () => {
 
     dispatch(updateNote(note))
     console.log('guardada')
+
+  }
+}
+
+export const startUploadImages = (files = []) => {
+  return async (dispatch) => {
+
+    dispatch(setSaving());
+
+    const newFiles = [];
+
+    for (const file of files) {
+      newFiles.push(cloudinary(file))
+    }
+
+    const photoUrls = await Promise.all(newFiles);
+
+    dispatch(setPhotosToActiveNote(photoUrls));
+  }
+}
+
+export const startDeleveNote = () => {
+  return async (dispatch, getState) => {
+
+    const { uid } = getState().auth;
+    const { active: note } = getState().journal;
+
+    const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`);
+    await deleteDoc(docRef);
+
+    dispatch(deleteNoteById(note.id))
 
   }
 }
